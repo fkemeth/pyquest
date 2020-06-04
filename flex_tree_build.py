@@ -9,42 +9,41 @@ import scipy.spatial as spsp
 
 class Cluster(object):
     """
-    Cluster objects are just sets of elements, with a couple of methods 
+    Cluster objects are just sets of elements, with a couple of methods
     added for prettiness and usefulness. But you could just use sets instead.
     """
     def __init__(self,elements):
         self.elements = set(elements)
-    
+
     @property
     def size(self):
         return len(self.elements)
-    
+
     def __len__(self):
         return len(self.elements)
-    
-    
+
     def __repr__(self):
         return str(list(self.elements))
-    
+
 class Clustering(object):
     """
     A Clustering is a level of a tree, which clusters the level below it.
     So there are n nodes, which could be clusters at the lower level, and
-    the Clustering object contains up to n Clusters that give the 
+    the Clustering object contains up to n Clusters that give the
     hierarchical partition for the level.
     """
     def __init__(self,n):
         self.n = n
         self.cluster_lookup = {}
-        for i in xrange(n):
+        for i in range(n):
             self.cluster_lookup[i] = i
         self._clusters = []
-        for i in xrange(n):
+        for i in range(n):
             self._clusters.append(Cluster([i]))
-    
+
     def __len__(self):
         return len([x for x in self._clusters if x.size > 0])
-    
+
     def join_clusters(self,n1,n2):
         c1 = self._clusters[self.cluster_lookup[n1]]
         c2 = self._clusters[self.cluster_lookup[n2]]
@@ -52,10 +51,10 @@ class Clustering(object):
             self.cluster_lookup[x] = n1
         c1.elements = c1.elements.union(c2.elements)
         c2.elements = set([])
-        
+
     def find(self,idx):
         return self._clusters[self.cluster_lookup[idx]]
-    
+
     def test_join(self,edge_wt,e1,e2,penalty):
         c1 = self.find(e1)
         c2 = self.find(e2)
@@ -115,15 +114,15 @@ def cluster_transform_matrices(clustering):
 def clusterlist_to_tree(cluster_list):
 
     n_leaves = sum([x.size for x in cluster_list[0].clusters])
-    clusters = [tree.ClusterTreeNode([i]) for i in xrange(n_leaves)]
-        
+    clusters = [tree.ClusterTreeNode([i]) for i in range(n_leaves)]
+
     for clustering in cluster_list:
-        new_clusters = [tree.ClusterTreeNode([]) for i in xrange(len(clustering))]
+        new_clusters = [tree.ClusterTreeNode([]) for i in range(len(clustering))]
         for (idx,cluster) in enumerate(clustering.clusters):
             for element in cluster.elements:
                 clusters[element].assign_to_parent(new_clusters[idx])
         clusters = new_clusters
-        
+
     if len(clusters) == 1:
         clusters[0].make_index()
         return clusters[0]
@@ -138,10 +137,10 @@ def cluster_from_affinity(affinity,eps=1.0,threshold=1e-8):
     #print "eps: {}".format(eps)
     A = affinity.copy()
     A -= np.diag(np.diag(A))
-    
+
     Alocs = np.argmax(A,axis=1)  #stores the location of the max entry in this row
     Amaxes = A[range(A.shape[0]),Alocs] #stores the max entry in this row
-    
+
     penalty = np.median(A[A>threshold])*eps
     #print "penalty: {}".format(penalty)
     clustering = Clustering(affinity.shape[0])
@@ -159,17 +158,17 @@ def cluster_from_affinity(affinity,eps=1.0,threshold=1e-8):
         else:
             A[row,col] = 0.0
             Alocs[row] = np.argmax(A[row,:])
-            Amaxes[row] = A[row,Alocs[row]]        
+            Amaxes[row] = A[row,Alocs[row]]
     return clustering
 
 def cluster_from_distance(distance_matrix,eps=1.0):
     #print "eps: {}".format(eps)
     A = distance_matrix.copy()
     A += 999.0*np.eye(A.shape[0])
-    
+
     Alocs = np.argmin(A,axis=1)  #stores the location of the min dist in row
     Amins = A[range(A.shape[0]),Alocs] #stores the min entry in this row
-    
+
     med = np.median(A)
     penalty = np.median(A)/eps
     #print "penalty: {}".format(penalty)
@@ -188,25 +187,25 @@ def cluster_from_distance(distance_matrix,eps=1.0):
         else:
             A[row,col] = 999.0
             Alocs[row] = np.argmin(A[row,:])
-            Amins[row] = A[row,Alocs[row]]        
+            Amins[row] = A[row,Alocs[row]]
     return clustering
 
 def flex_tree(affinity,penalty_constant,threshold=1e-8):
     """
-    Takes affinity, a square matrix of positive entries representing an 
-    affinity between n nodes, and creates a flexible tree based on 
-    that affinity. This is *static* because it uses the same affinity 
+    Takes affinity, a square matrix of positive entries representing an
+    affinity between n nodes, and creates a flexible tree based on
+    that affinity. This is *static* because it uses the same affinity
     at all levels and doesn't compute a diffusion. All it does is join things
     based on their closeness (higher affinity). Cluster affinity to each other
     is the average affinity between elements.
-    """ 
+    """
     #print "***starting***"
     q = np.eye(affinity.shape[0]) #initialize q for code brevity.
     cluster_list = []
     i=0
     while 1:
         #print "clustering at level {}".format(i)
-        i+=1 
+        i+=1
         new_affinity = q.dot(affinity).dot(q.T)
         cluster_list.append(cluster_from_affinity(new_affinity,
                                                   penalty_constant,
@@ -217,7 +216,7 @@ def flex_tree(affinity,penalty_constant,threshold=1e-8):
         temp_tree = clusterlist_to_tree(cluster_list)
         cpart = ClusteringPartition([x.elements for x in temp_tree.dfs_level(2)])
         q,_ = cluster_transform_matrices(cpart)
-    return clusterlist_to_tree(cluster_list)    
+    return clusterlist_to_tree(cluster_list)
 
 def flex_tree_diffusion(affinity,penalty_constant,n_eigs=12):
     """
@@ -227,18 +226,18 @@ def flex_tree_diffusion(affinity,penalty_constant,n_eigs=12):
     up, doubles the diffusion time.
     penalty_constant is the multiplier of the median diffusion distance.
     """
-    #First, we calculate the first n eigenvectors and eigenvalues of the 
+    #First, we calculate the first n eigenvectors and eigenvalues of the
     #diffusion
     cluster_list = []
     vecs,vals = markov.markov_eigs(affinity,n_eigs)
     diff_time = 1.0
     q = np.eye(affinity.shape[0])
     while 1:
-        #now we calculate the diffusion distances between points at the 
+        #now we calculate the diffusion distances between points at the
         #current diffusion time.
-        diff_vecs = vecs.dot(np.diag(vals**diff_time)) 
+        diff_vecs = vecs.dot(np.diag(vals**diff_time))
         diff_dists = spsp.distance.squareform(spsp.distance.pdist(diff_vecs))
-        #we take the affinity between clusters to be the average diffusion 
+        #we take the affinity between clusters to be the average diffusion
         #distance between them.
         avg_dists = q.dot(diff_dists).dot(q.T)
         #now we cluster the points based on this distance

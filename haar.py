@@ -21,7 +21,7 @@ def haar_vectors(n,node_sizes,norm="L2"):
     if norm == "L2":
         haar_basis[:,0] /= np.sqrt(n)
 
-    for i in xrange(1,n):
+    for i in range(1,n):
         pluses = node_sizes[i-1]
         minuses = np.sum(node_sizes[i:])
         
@@ -62,7 +62,7 @@ def compute_haar(t,return_nodes=False,norm="L2"):
                                       np.array([x.size for x in schildren]),
                                       norm)
             
-            for i in xrange(1,node_size):
+            for i in range(1,node_size):
                 #each basis vector will be a column of the basis
                 for j,child in enumerate(schildren):
                     haar_basis[child.elements,cur_col] = basis_vecs[j,i]
@@ -91,7 +91,7 @@ def inverse_haar_transform(coefs,row_tree,norm="L2"):
     basis = compute_haar(row_tree)
     if norm == "L1":
         norm_vec = np.sum(np.abs(basis),axis=0)
-        for col in xrange(basis.shape[1]):
+        for col in range(basis.shape[1]):
             basis[:,col] /= norm_vec[col]
     return basis.dot(coefs)
     
@@ -101,7 +101,7 @@ def level_correspondence(row_tree):
     levels of the tree.
     """
     level_counts = [[x.size for x in row_tree.dfs_level(i)] for i in 
-                    xrange(1,row_tree.tree_depth+1)]
+                    range(1,row_tree.tree_depth+1)]
     marks = [0]+[row_tree.size-sum([y-1 for y in x]) for x in level_counts]
     z = np.zeros(row_tree.size,np.int)
     for (idx,t) in enumerate(marks):

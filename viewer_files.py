@@ -2,7 +2,7 @@
 Writes out files to be used with the viewers.
 """
 
-import cPickle
+import pickle
 
 def write_tree_viewer(filename,tree,vecs,vals,descs=None,tree_desc=""):
     datadict = {}
@@ -15,5 +15,5 @@ def write_tree_viewer(filename,tree,vecs,vals,descs=None,tree_desc=""):
         datadict['data_descs'] = descs
     datadict['tree_desc'] = tree_desc
     fout = open(filename,'wb')
-    cPickle.dump(datadict,fout)
+    pickle.dump(datadict,fout)
     fout.close()

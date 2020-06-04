@@ -1,7 +1,7 @@
 """
-plot_utils.py: Defines a number of useful plotting functions with respect to 
+plot_utils.py: Defines a number of useful plotting functions with respect to
                binary questionnaire data, especially for interactive sessions.
-""" 
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -11,14 +11,14 @@ from mpl_toolkits.mplot3d import Axes3D
 #binnorm is the norm on [-1,1]
 rbmap = plt.get_cmap("RdBu_r")
 rbmap.set_under('blue')
-rbmap.set_over('red') 
+rbmap.set_over('red')
 
 binnorm = matplotlib.colors.Normalize(vmin=-1,vmax=1,clip=False)
 
 #bwmap is a grayscale norm. bwnorm is the norm on [0,1]
 bwmap = plt.get_cmap("binary_r")
 bwmap.set_under('black')
-bwmap.set_over('white') 
+bwmap.set_over('white')
 bwnorm = matplotlib.colors.Normalize(vmin=0,vmax=1,clip=False)
 
 #these are useful functions for interactive plotting of images which I do a lot.
@@ -33,13 +33,13 @@ def bwplot2(data, **kwargs):
     Plot [-1,1] data in grayscale.
     """
     _mplot(data,bwmap,binnorm,**kwargs)
-    
+
 def cplot(data, **kwargs):
     """
     Plot [-1,1] data in the blue/red gradient.
     """
     _mplot(data,rbmap,binnorm,**kwargs)
-        
+
 def _mplot(data,cmap,norm,**kwargs):
     """
     Plot [-1,1] data in the blue/red gradient.
@@ -61,13 +61,13 @@ def plot_tree(t,**kwargs):
     leafcolors = color just the leaf nodes
     title = set the title
     ax = plot on the given axis
-    useplt = default true, if False, then ax must be specified and will 
+    useplt = default true, if False, then ax must be specified and will
              plot directly to ax.
     """
     node_locs = np.zeros([t.tree_size,2])
     node_order = []
-    
-    for level in xrange(1,t.tree_depth+1):
+
+    for level in range(1,t.tree_depth+1):
         nodes = t.dfs_level(level)
         node_order.extend([x.idx for x in nodes])
         node_idxs = np.array([node.idx for node in nodes])
@@ -75,17 +75,17 @@ def plot_tree(t,**kwargs):
         node_xs = x_intervals[:-1] + np.diff(x_intervals)/2.0
         node_ys = (t.tree_depth - level)*np.ones(np.shape(node_xs))
         node_locs[node_idxs,:] = np.hstack([node_xs[:,np.newaxis],node_ys[:,np.newaxis]])
-    
+
     useplt = True
     if "useplt" in kwargs:
         if not kwargs["useplt"]:
             useplt = False
             ax = kwargs["ax"]
-    
+
     if "ax" in kwargs:
         if useplt:
             plt.sca(kwargs["ax"])
-    
+
     if "nodecolors" in kwargs:
         nc = kwargs["nodecolors"]
         if useplt:
@@ -122,7 +122,7 @@ def plot_tree(t,**kwargs):
                 plt.plot((x1,x2),(y1,y2),'r')
             else:
                 ax.plot((x1,x2),(y1,y2),'r')
-                
+
     if useplt:
         plt.yticks(np.arange(0,t.tree_depth,1))
         plt.xlim([0.0,1.0])
@@ -136,10 +136,10 @@ def plot_tree(t,**kwargs):
             plt.title(kwargs["title"])
         else:
             ax.set_title(kwargs["title"])
-    
+
     if "nodelocs" in kwargs:
         return node_locs
-    
+
 def plot_embedding(vecs,vals,**kwargs):
     """
     kwargs that do something:
@@ -155,22 +155,22 @@ def plot_embedding(vecs,vals,**kwargs):
         diff_time = 1.0/(1.0 - vals[1])
     else:
         diff_time = kwargs["diff_time"]
-    
+
     x=vecs[:,1] * (vals[1] ** diff_time)
     y=vecs[:,2] * (vals[2] ** diff_time)
     z=vecs[:,3] * (vals[3] ** diff_time)
-    
+
     if "ax" not in kwargs:
         fig = plt.figure()
         ax = fig.add_subplot(111,projection="3d")
     else:
         ax = kwargs["ax"]
-    
+
     if "title" in kwargs:
         title = kwargs["title"]
     else:
         title="Diffusion Embedding: "
-    
+
     if "partition" in kwargs:
         COLORS = "krcmybg"
         c = [COLORS[w % len(COLORS)] for w in kwargs["partition"]]
@@ -178,12 +178,12 @@ def plot_embedding(vecs,vals,**kwargs):
         c = kwargs["nodecolors"]
     else:
         c = 'b'
-    
+
     ax.scatter3D(x,y,z,c=c,norm=binnorm,cmap=rbmap)
     if "nodt" not in kwargs:
         ax.set_title("{0} $t={1:1.3}$".format(title,diff_time))
     else:
         ax.set_title(title)
-        
+
     if "azim" in kwargs:
         ax.view_init(kwargs["elev"],kwargs["azim"])

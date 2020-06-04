@@ -12,7 +12,7 @@ import flex_tree_build
 
 INIT_AFF_COS_SIM = 0
 INIT_AFF_GAUSSIAN = 1
-    
+
 DEFAULT_INIT_AFF_THRESHOLD = 0.0
 DEFAULT_INIT_AFF_EPSILON = 1.0
 DEFAULT_INIT_AFF_KNN = 5
@@ -115,14 +115,14 @@ class PyQuestParams(object):
         if "n_iters" in kwargs:
             self.n_iters = kwargs["n_iters"]
         else:
-            print "default n_iters"
+            print("default n_iters")
             self.n_iters = DEFAULT_N_ITERS
-        
+
         if "n_trees" in kwargs:
             self.n_trees = kwargs["n_trees"]
         else:
             self.n_trees = DEFAULT_N_TREES
-            
+
 class PyQuestRun(object):
     """
     Holds the results of a run of the questionnaire, which are basically:
@@ -165,7 +165,7 @@ def pyquest(data,params):
     row_tree_descs = ["Initial tree"]
     col_tree_descs = []
     
-    for i in xrange(params.n_iters):
+    for i in range(params.n_iters):
         message = "Iteration {}: calculating column affinity...".format(i)
 
         #print "Beginning iteration {}".format(i)
@@ -174,7 +174,7 @@ def pyquest(data,params):
                      params.col_alpha,params.col_beta)
             col_aff = dual_affinity.emd_dual_aff(col_emd)
         elif params.col_affinity_type == DUAL_GAUSSIAN:
-            print "Gaussian dual affinity not supported at the moment."
+            print("Gaussian dual affinity not supported at the moment.")
             return None
         
         message = "Iteration {}: calculating column tree...".format(i)
@@ -195,11 +195,11 @@ def pyquest(data,params):
                      params.row_alpha,params.row_beta)
             row_aff = dual_affinity.emd_dual_aff(row_emd)
         elif params.row_affinity_type == DUAL_GAUSSIAN:
-            print "Gaussian dual affinity not supported at the moment."
+            print("Gaussian dual affinity not supported at the moment.")
             return None
- 
+
         message = "Iteration {}: calculating row tree...".format(i)
-       
+
         if params.tree_type == TREE_TYPE_BINARY:
             row_tree = bin_tree_build.bin_tree_build(row_aff,'r_dyadic',
                                                      params.tree_bal_constant)

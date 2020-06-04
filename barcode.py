@@ -119,7 +119,7 @@ def nn_param(data,start=0):
     _,neighbors = knn.kneighbors(data)
     order = []
     order.append(start)
-    for _ in xrange(n):
+    for _ in range(n):
         nn = [x for x in neighbors[order[-1]] if x not in order]
         if nn:
             order.append(nn[0])
@@ -129,7 +129,7 @@ def emd_nn(emd,start=0):
     n = emd.shape[0]
     order = []
     order.append(start)
-    for _ in xrange(n):
+    for _ in range(n):
         nn = [x for x in emd[order[-1],:].argsort() if x not in order]
         #print "neighbors of {}: {}".format(order[-1],nn)
         if nn:
@@ -145,7 +145,7 @@ def organize_diffusion(data,row_vecs,col_vecs,nstarts=10):
     l1_dist = np.zeros(len(starts))
     row_orders = {}
     col_orders = {}
-    for i in xrange(len(starts)):
+    for i in range(len(starts)):
         row_order = nn_param(row_vecs,starts[i])
         col_order = nn_param(col_vecs,starts[i])
         new_data = data[row_order,:][:,col_order]

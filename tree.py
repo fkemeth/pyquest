@@ -9,13 +9,13 @@ class ClusterTreeNode(object):
         self.parent = parent
         self.elements = sorted(set(elements))
         self.children = []
-    
+
     def __getitem__(self,key):
         """
         Allows lookup of tree nodes by index, like row_tree[17].
         """
         return self.nodes_list[key]
-    
+
     def __iter__(self):
         """
         Allows iteration of the tree without using traverse(), ie:
@@ -24,7 +24,7 @@ class ClusterTreeNode(object):
         """
         for x in self.nodes_list:
             yield x
-            
+
     def __len__(self):
         return self.tree_size
     
@@ -202,29 +202,29 @@ class ClusterTreeNode(object):
         for node in self.nodes_list:
             node.idx = idx
             idx += 1
-            
+
     def disp_tree(self):
         """
         Prints out crude representation of tree structure by elements in folders.
         No return value.
         """
-        for i in xrange(self.tree_depth):
-            print i,self.sublevel_elements(i+1)
-            
+        for i in range(self.tree_depth):
+            print(i,self.sublevel_elements(i+1))
+
     def disp_tree_folder_sizes(self):
         """
         Prints out crude representation of tree structure by folder sizes.
         No return value.
         """
-        for i in xrange(self.tree_depth):
-            print i,sorted([len(x) for x in self.sublevel_elements(i+1)])
-            
+        for i in range(self.tree_depth):
+            print(i,sorted([len(x) for x in self.sublevel_elements(i+1)]))
+
     def folder_set(self,element):
         """
         Returns the index set of all parents of element.
         """
         return [x.idx for x in self.nodes_list if element in x.elements]
-    
+
     def level_partition(self,level):
         """
         Returns the entire partition of the tree at the specified level
@@ -286,7 +286,7 @@ def dyadic_tree(n):
     tree_list = [ClusterTreeNode([element]) for element in elements]
     tree_list2 = []
 
-    for _ in xrange(n):
+    for _ in range(n):
         while len(tree_list) > 0:
             tree_list2.append(ClusterTreeNode([]))
             tree_list[0].assign_to_parent(tree_list2[-1])
